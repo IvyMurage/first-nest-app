@@ -1,5 +1,6 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { BOOKS } from 'src/mocks/books.mock';
+import { CreateBookDTO } from './dto/create-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -11,21 +12,25 @@ export class BooksService {
     });
   }
 
-  getBook(bookID): Promise<any> {
+  getBook(bookID:string): Promise<any> {
     let id = Number(bookID);
     return new Promise((resolve) => {
       const book = this.books.find((book) => book.id === id);
+
       if (!book) {
         throw new HttpException('Book does not exist!', 404);
       }
+      resolve(book);  
     });
   }
 
-  addBook(book): Promise<any> {
-    return new Promise((resolve) => {
-      this.books.push(book);
-      resolve(this.books);
-    });
+  async addBook(book: CreateBookDTO): Promise<CreateBookDTO> {
+    const newBook: CreateBookDTO = {
+      id: this.books.length + 1, 
+      ...book,
+    };
+    this.books.push(newBook);
+    return newBook; 
   }
 
   deleteBook(bookId): Promise<any> {
